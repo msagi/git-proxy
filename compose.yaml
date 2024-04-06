@@ -1,0 +1,52 @@
+# Docker Compose reference guide at https://docs.docker.com/go/compose-spec-reference/
+
+# create docker volumes via
+# docker volume create file-data 
+# docker volume create db-data
+
+#For examples, see the Awesome Compose repository: https://github.com/docker/awesome-compose
+services:
+  server:
+    build:
+      context: .
+    environment:
+      NODE_ENV: production
+    ports:
+      - 80:80
+      - 8080:8080
+    volumes:
+      - file-data:/usr/src/app/.remote
+    depends_on:
+       db:
+         condition: service_healthy
+    networks:
+      - network
+
+  db:
+    image: mongo:jammy
+    restart: always
+    healthcheck:
+      test: echo 'db.stats().ok' | mongosh mongodb://localhost:27017/test --quiet
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
+    ports:
+      - '27017:27017'
+    volumes:
+      - db-data:/data/db
+    networks:
+      - network
+
+# secrets:
+#   db-password:
+#     file: db/password.txt
+volumes:
+  file-data:
+  db-data:
+
+networks:
+  network:
+    driver: bridge
+
+

@@ -6,10 +6,12 @@ const validator = require('email-validator');
 const config = require('../config');
 
 if (config.getDatabase().type === 'fs') {
+  console.log(`Database: fs`);
   sink = require('../db/file');
 }
 
 if (config.getDatabase().type === 'mongo') {
+  console.log(`Database: mongo`);
   sink = require('../db/mongo');
 }
 
