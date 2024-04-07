@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_VERSION=21.7.1
+ARG NODE_VERSION=21.7.2
 
 ################################################################################
 # Use node image for base image for all stages.
@@ -63,13 +63,12 @@ RUN mkdir .data .remote .tmp
 RUN chown node .data .remote .tmp
 
 # Default port for the git proxy server
-ENV GIT_PROXY_PORT="80"
+ENV GIT_PROXY_PORT="8080"
 # Default port for the API server
-ENV GIT_PROXY_API_PORT="8080"
+ENV GIT_PROXY_API_PORT="80"
 
-# Expose the port that the application listens on.
-EXPOSE ${GIT_PROXY_PORT}
-EXPOSE ${GIT_PROXY_API_PORT}
+# Expose the ports that the application listens on.
+EXPOSE ${GIT_PROXY_PORT} ${GIT_PROXY_API_PORT}
 
 # Run the application as a non-root user.
 USER node

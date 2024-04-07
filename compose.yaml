@@ -11,16 +11,27 @@ services:
       context: .
     environment:
       NODE_ENV: production
+    restart: always
+    healthcheck:
+      test: curl --fail http://localhost/api/v1/healthcheck || exit 1
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
     ports:
       - 80:80
       - 8080:8080
-    volumes:
-      - file-data:/usr/src/app/.remote
     depends_on:
        db:
          condition: service_healthy
     networks:
-      - network
+      - frontend
+      - backend
+    read_only: true   # container to be created with a read-only filesystem
+    tmpfs:            # temporary file systems inside the container
+      - /tmp
+    volumes:
+      - file-data:/usr/src/app/.remote
 
   db:
     image: mongo:jammy
@@ -33,10 +44,13 @@ services:
       start_period: 30s
     ports:
       - '27017:27017'
+    networks:
+      - backend
+    read_only: true   # container to be created with a read-only filesystem
+    tmpfs:            # temporary file systems inside the container
+      - /tmp
     volumes:
       - db-data:/data/db
-    networks:
-      - network
 
 # secrets:
 #   db-password:
@@ -46,7 +60,8 @@ volumes:
   db-data:
 
 networks:
-  network:
-    driver: bridge
+  frontend:
+  backend:
+    internal: true    # disable egress
 
 
